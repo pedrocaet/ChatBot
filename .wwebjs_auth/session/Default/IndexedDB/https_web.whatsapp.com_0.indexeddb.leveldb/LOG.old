@@ -1,0 +1,6 @@
+2024/12/17-16:24:57.505 220c Creating DB C:\Users\Pedro Caetano\Desktop\ChatBot\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb since it was missing.
+2024/12/17-16:24:57.527 220c Reusing MANIFEST C:\Users\Pedro Caetano\Desktop\ChatBot\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2024/12/17-16:24:57.530 220c Recovering log #1605
+2024/12/17-16:24:57.630 220c Reusing old log C:\Users\Pedro Caetano\Desktop\ChatBot\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/001605.log 
+2024/12/17-16:24:57.631 220c Delete type=2 #1604
+2024/12/17-16:24:57.631 220c Delete type=2 #1607

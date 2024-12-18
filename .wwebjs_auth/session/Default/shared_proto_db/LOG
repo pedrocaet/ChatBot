@@ -1,0 +1,4 @@
+2024/12/17-16:34:26.917 1208 Creating DB C:\Users\Pedro Caetano\Desktop\ChatBot\.wwebjs_auth\session\Default\shared_proto_db since it was missing.
+2024/12/17-16:34:26.926 1208 Reusing MANIFEST C:\Users\Pedro Caetano\Desktop\ChatBot\.wwebjs_auth\session\Default\shared_proto_db/MANIFEST-000001
+2024/12/17-16:34:26.926 1208 Recovering log #3
+2024/12/17-16:34:26.927 1208 Reusing old log C:\Users\Pedro Caetano\Desktop\ChatBot\.wwebjs_auth\session\Default\shared_proto_db/000003.log 

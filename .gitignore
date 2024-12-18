@@ -1,0 +1,4 @@
+node_modules/
+*.dll
+*.exe
+puppeteer-core/.local-chromium/
