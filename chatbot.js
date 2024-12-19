@@ -2,6 +2,7 @@
 const qrcode = require('qrcode-terminal');
 const QRCode = require('qrcode'); // Para salvar QR Code como imagem
 const { Client, LocalAuth } = require('whatsapp-web.js');
+const fs = require('fs');
 
 // Configurando o cliente do WhatsApp Web
 const client = new Client({
@@ -13,17 +14,42 @@ const client = new Client({
     qrMaxRetries: 10, // Mais tentativas para escanear o QR Code
 });
 
-client.on('ready', async () => {
-    console.log('Bot conectado e pronto para receber mensagens!');
-    const chats = await client.getChats();
-    console.log(`Total de chats carregados: ${chats.length}`);
+// Evento para exibir o QR Code e salvá-lo como imagem
+client.on('qr', async (qr) => {
+    console.log('QR Code recebido. Escaneie para conectar.');
+    qrcode.generate(qr, { small: true }); // Exibe no terminal
+
+    // Salva o QR Code como imagem
+    try {
+        await QRCode.toFile('./qrcode.png', qr);
+        console.log('QR Code salvo como "qrcode.png". Abra o arquivo para escanear.');
+    } catch (err) {
+        console.error('Erro ao salvar QR Code:', err);
+    }
 });
+
+// Evento para indicar que o cliente está pronto
+client.on('ready', () => {
+    console.log('Tudo certo! WhatsApp conectado.');
+});
+
+// Evento para tratar falhas na autenticação
+client.on('auth_failure', (msg) => {
+    console.error('Falha na autenticação:', msg);
+});
+
+// Evento para tratar desconexões
+client.on('disconnected', (reason) => {
+    console.log(`Cliente desconectado: ${reason}`);
+    client.initialize(); // Reinitialize if needed
+});
+
+// Inicializando o cliente
+client.initialize();
 
 // Mapeamento para armazenar o estado de cada conversa
 const userStates = {};
-
-// Lista de usuários que já concluíram o fluxo
-const completedUsers = new Set(); // Usando Set para evitar duplicidade
+const completedUsers = new Set(); // Para evitar duplicidade
 
 // Perguntas do fluxo
 const questions = [
@@ -53,43 +79,7 @@ const advanceUserState = (userId) => {
     }
 };
 
-// Evento para gerar o QR Code
-client.on('qr', async (qr) => {
-    console.log('QR Code recebido. Escaneie para conectar.');
-    qrcode.generate(qr, { small: true }); // Exibe no terminal
-
-    // Salva o QR Code como imagem
-    await QRCode.toFile('./qrcode.png', qr, (err) => {
-        if (err) {
-            console.error('Erro ao salvar QR Code:', err);
-        } else {
-            console.log('QR Code também salvo como "qrcode.png". Abra o arquivo para escanear.');
-        }
-    });
-});
-
-// Evento quando o cliente está pronto
-client.on('ready', () => {
-    console.log('Tudo certo! WhatsApp conectado.');
-});
-
-// Evento para tratar falhas na autenticação
-client.on('auth_failure', (msg) => {
-    console.error('Falha na autenticação:', msg);
-});
-
-// Evento para tratar desconexões
-client.on('disconnected', (reason) => {
-    console.log(`Cliente desconectado: ${reason}`);
-    client.initialize(); // Reinitialize if needed
-});
-
-// Inicializando o cliente
-client.initialize();
-
-const delay = (ms) => new Promise((res) => setTimeout(res, ms)); // Função de delay
-
-// Função para gerenciar mensagens recebidas
+// Evento para gerenciar mensagens recebidas
 client.on('message', async (msg) => {
     const userId = msg.from;
 
@@ -122,9 +112,8 @@ client.on('message', async (msg) => {
     ) {
         const chat = await msg.getChat();
 
-        await delay(3000); // Delay de 3 segundos
-        await chat.sendStateTyping(); // Simulando digitação
-        await delay(3000);
+        await chat.sendStateTyping(); // Simula digitação
+        await new Promise(res => setTimeout(res, 3000)); // Delay de 3 segundos
 
         // Envia a primeira pergunta
         const firstQuestion = questions[0].replace("{name}", userState.name.split(' ')[0]);
@@ -144,11 +133,9 @@ client.on('message', async (msg) => {
         // Envia a próxima pergunta
         const nextQuestion = getNextQuestion(userId);
         if (nextQuestion) {
-            await delay(2000); // Delay antes de enviar a próxima mensagem
             await client.sendMessage(msg.from, nextQuestion.replace("{name}", userState.name.split(' ')[0]));
         } else {
             // Fluxo concluído
-            await delay(2000);
             await client.sendMessage(
                 msg.from,
                 "Obrigado por responder todas as perguntas. Entraremos em contato em breve!"
